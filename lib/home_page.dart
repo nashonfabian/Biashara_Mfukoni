@@ -4,6 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'db_helper.dart';
 import 'sheet_imeingia.dart';
 import 'sheet_imetoka.dart';
+import 'historia_page.dart';
+import 'settings_page.dart';
+import 'bajeti_breakdown_page.dart';
+import 'baki_halisi_breakdown_page.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
@@ -129,10 +133,26 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 ],
               ),
               const Spacer(),
-              const Icon(
-                Icons.notifications_sharp,
-                color: Color(0xFF050C11),
-                size: 24,
+              IconButton(
+                icon: const Icon(Icons.history, color: Color(0xFF050C11)),
+                tooltip: 'Historia',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HistoriaPage()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings, color: Color(0xFF050C11)),
+                tooltip: 'Mipangilio',
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingsPage()),
+                  );
+                  _refreshAll();
+                },
               ),
             ],
           ),
@@ -160,25 +180,38 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       future: _bajetiMzigoFuture,
                       builder: (context, snapshot) {
                         final v = snapshot.data;
-                        return Row(
-                          children: [
-                            Text(
-                              'Bajeti salama ya mzigo:',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
+                        return InkWell(
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const BajetiBreakdownPage()),
+                            );
+                            _refreshAll();
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                'Bajeti salama ya mzigo:',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              v == null ? '...' : _tsh(v),
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF2FA86A),
+                              const SizedBox(width: 6),
+                              Text(
+                                v == null ? '...' : _tsh(v),
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF2FA86A),
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Icon(Icons.chevron_right,
+                                  size: 16, color: Colors.grey.shade400),
+                            ],
+                          ),
                         );
                       },
                     ),
@@ -241,13 +274,24 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       builder: (context, snapshot) {
                         final v = snapshot.data;
                         return Center(
-                          child: Text(
-                            v == null
-                                ? ''
-                                : 'Faida halisi ya leo: ${_tsh(v)}',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.grey.shade500,
+                          child: InkWell(
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const BakiHalisiBreakdownPage()),
+                              );
+                              _refreshAll();
+                            },
+                            child: Text(
+                              v == null
+                                  ? ''
+                                  : 'Faida halisi ya leo: ${_tsh(v)}  ›',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: Colors.grey.shade500,
+                              ),
                             ),
                           ),
                         );

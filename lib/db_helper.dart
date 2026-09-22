@@ -54,6 +54,30 @@ class SaleRow {
       );
 }
 
+class ActivityRow {
+  final String type; // 'mauzo' | 'manunuzi' | 'matumizi'
+  final String name;
+  final double? quantity;
+  final double amount; // chanya (mauzo) au hasi (manunuzi/matumizi)
+  final String timestamp;
+
+  ActivityRow({
+    required this.type,
+    required this.name,
+    this.quantity,
+    required this.amount,
+    required this.timestamp,
+  });
+
+  factory ActivityRow.fromMap(Map<String, dynamic> m) => ActivityRow(
+        type: m['type'] as String,
+        name: m['name'] as String,
+        quantity: (m['quantity'] as num?)?.toDouble(),
+        amount: (m['amount'] as num).toDouble(),
+        timestamp: m['timestamp'] as String,
+      );
+}
+
 // ===================== DB HELPER =====================
 
 /// Hii inachukua nafasi ya `SQLiteManager.instance` ya FlutterFlow.
@@ -298,6 +322,11 @@ class DbHelper {
     return db.query('fixed_costs', orderBy: 'name ASC');
   }
 
+  Future<int> futaGharamaYaKudumu(int id) async {
+    final db = await database;
+    return db.delete('fixed_costs', where: 'id = ?', whereArgs: [id]);
+  }
+
   /// Pillar 3: gharama za kudumu / siku 30 — kikato hiki kinakatwa kila
   /// siku bila kujali mauzo ya siku hiyo (uamuzi wa makusudi: kodi
   /// haisubiri mauzo, hivyo Baki Halisi inaonyesha ukweli, siyo picha
@@ -371,5 +400,79 @@ class DbHelper {
     final matumizi = await getMatumiziLeoJumla();
     final overhead = await getDailyOverhead();
     return faida - matumizi - overhead;
+  }
+
+  // ===================== HISTORIA (Awamu 1) =====================
+
+  /// Inaunganisha mauzo, manunuzi, na matumizi kuwa orodha moja, kwa
+  /// mpangilio wa muda (mpya kwanza). `typeFilter` inaweza kuwa
+  /// 'mauzo', 'manunuzi', 'matumizi', au null (zote).
+  Future<List<ActivityRow>> getActivityLog({String? typeFilter}) async {
+    final db = await database;
+
+    final rows = await db.rawQuery('''
+      SELECT 'mauzo' AS type, p.name AS name, s.quantity AS quantity,
+             (s.selling_price * s.quantity) AS amount, s.timestamp AS timestamp
+      FROM sales s JOIN products p ON p.id = s.product_id
+
+      UNION ALL
+
+      SELECT 'manunuzi' AS type, p.name AS name, sp.quantity AS quantity,
+             -sp.total_amount AS amount, sp.timestamp AS timestamp
+      FROM stock_purchases sp JOIN products p ON p.id = sp.product_id
+
+      UNION ALL
+
+      SELECT 'matumizi' AS type,
+             COALESCE(e.description, 'Matumizi') AS name,
+             NULL AS quantity,
+             -e.amount AS amount, e.timestamp AS timestamp
+      FROM expenses e
+
+      ORDER BY timestamp DESC
+    ''');
+
+    final all = rows.map((e) => ActivityRow.fromMap(e)).toList();
+    if (typeFilter == null) return all;
+    return all.where((a) => a.type == typeFilter).toList();
+  }
+
+  // ===================== BREAKDOWN (Awamu 1 sub-pages) =====================
+
+  /// Pillar 2 breakdown: mchango wa kila bidhaa kwenye Bajeti ya Mzigo
+  /// (jumla ya cost-price kutoka mauzo yake, kwa sasa - hairekebishi
+  /// kwa manunuzi tayari yaliyofanyika kwa bidhaa hiyo mahususi).
+  Future<List<Map<String, dynamic>>> getMchangoWaBidhaaKwenyeBajeti() async {
+    final db = await database;
+    return db.rawQuery('''
+      SELECT p.name AS name,
+             SUM(s.cost_price_snapshot * s.quantity) AS jumla
+      FROM sales s JOIN products p ON p.id = s.product_id
+      GROUP BY p.id
+      HAVING jumla > 0
+      ORDER BY jumla DESC
+    ''');
+  }
+
+  Future<List<Map<String, dynamic>>> getManunuziYaKaribuni({int limit = 5}) async {
+    final db = await database;
+    return db.rawQuery('''
+      SELECT p.name AS name, sp.quantity AS quantity,
+             sp.total_amount AS jumla, sp.timestamp AS timestamp
+      FROM stock_purchases sp JOIN products p ON p.id = sp.product_id
+      ORDER BY sp.timestamp DESC
+      LIMIT ?
+    ''', [limit]);
+  }
+
+  Future<List<Map<String, dynamic>>> getMatumiziYaLeo() async {
+    final db = await database;
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    return db.query(
+      'expenses',
+      where: "date(timestamp) = ?",
+      whereArgs: [today],
+      orderBy: 'timestamp DESC',
+    );
   }
 }
