@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'main_nav_shell.dart';
 
 void main() {
   runApp(const BiasharaMfukoniApp());
@@ -14,10 +14,11 @@ class BiasharaMfukoniApp extends StatelessWidget {
       title: 'Biashara Mfukoni',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: const Color(0xFF4B39EF),
+        primaryColor: const Color(0xFF2952E3),
         useMaterial3: false,
+        scaffoldBackgroundColor: Colors.white,
       ),
-      home: const HomePageWidget(),
+      home: const MainNavShell(),
     );
   }
 }

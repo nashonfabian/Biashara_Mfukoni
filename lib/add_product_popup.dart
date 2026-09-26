@@ -4,14 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'db_helper.dart';
 
 /// Fomu inayoonekana MARA MOJA TU kwa kila bidhaa — wakati bidhaa
-/// inauzwa kwa mara ya kwanza kabisa (haijapatikana kwenye chips).
-/// Baada ya hapa, bidhaa hii inakuwa chip ya kudumu, na fomu hii
-/// haihitajiki tena kwa bidhaa hiyo.
+/// inauzwa kwa mara ya kwanza kabisa. Baada ya hapa, bidhaa hii
+/// inakuwa chip ya kudumu.
 class AddProductPopupWidget extends StatefulWidget {
-  const AddProductPopupWidget({
-    super.key,
-    required this.searchbar,
-  });
+  const AddProductPopupWidget({super.key, required this.searchbar});
 
   final String? searchbar;
 
@@ -20,7 +16,7 @@ class AddProductPopupWidget extends StatefulWidget {
 }
 
 class _AddProductPopupWidgetState extends State<AddProductPopupWidget> {
-  static const Color kPrimary = Color(0xFF4B39EF);
+  static const Color kPrimary = Color(0xFF2952E3);
 
   final _costPriceController = TextEditingController();
   final _salePriceController = TextEditingController();
@@ -68,7 +64,6 @@ class _AddProductPopupWidgetState extends State<AddProductPopupWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Tafadhali jaza jina, bei zote mbili, na idadi kwa usahihi!'),
-          duration: Duration(milliseconds: 4000),
         ),
       );
       return;
@@ -76,8 +71,6 @@ class _AddProductPopupWidgetState extends State<AddProductPopupWidget> {
 
     setState(() => _isSaving = true);
 
-    // Bidhaa inaundwa NA cost price yake ya kwanza; mauzo yanarekodiwa
-    // yakitumia bei hiyo hiyo kama snapshot ya wakati huo.
     final productId = await DbHelper.instance.getOrCreateProduct(
       productName,
       costPrice: costPrice,
@@ -100,109 +93,68 @@ class _AddProductPopupWidgetState extends State<AddProductPopupWidget> {
   Widget build(BuildContext context) {
     final hasName = (widget.searchbar ?? '').trim().isNotEmpty;
 
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Align(
-          alignment: Alignment.center,
-          child: Container(
-            width: MediaQuery.sizeOf(context).width * 0.85,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+    return Center(
+      child: Container(
+        width: MediaQuery.sizeOf(context).width * 0.88,
+        constraints: const BoxConstraints(maxWidth: 360),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              hasName ? widget.searchbar! : 'Bidhaa Mpya',
+              style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    hasName ? widget.searchbar! : 'Bidhaa Mpya',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.0,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Umeinunua kwa bei gani? (mara moja tu)',
-                    style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade600),
-                  ),
-                  const SizedBox(height: 15),
-
-                  SizedBox(
-                    width: 220,
-                    child: TextFormField(
-                      controller: _costPriceController,
-                      keyboardType: TextInputType.number,
-                      decoration: _decoration('Gharama za bidhaa (TZS)'),
-                      style: GoogleFonts.inter(letterSpacing: 0.0),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  SizedBox(
-                    width: 220,
-                    child: TextFormField(
-                      controller: _salePriceController,
-                      keyboardType: TextInputType.number,
-                      decoration: _decoration('Bei ya mauzo (TZS)'),
-                      style: GoogleFonts.inter(letterSpacing: 0.0),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  SizedBox(
-                    width: 220,
-                    child: TextFormField(
-                      controller: _quantityController,
-                      keyboardType: TextInputType.number,
-                      decoration: _decoration('Idadi/kiasi'),
-                      style: GoogleFonts.inter(letterSpacing: 0.0),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  SizedBox(
-                    height: 40,
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _pakiaMauzo,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Text(
-                              'Pakia mauzo',
-                              style: GoogleFonts.interTight(
-                                color: Colors.white,
-                                letterSpacing: 0.0,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 4),
+            Text(
+              'Umeinunua kwa bei gani? (mara moja tu)',
+              style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 15),
+            TextFormField(
+              controller: _costPriceController,
+              keyboardType: TextInputType.number,
+              decoration: _decoration('Gharama za bidhaa (TZS)'),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _salePriceController,
+              keyboardType: TextInputType.number,
+              decoration: _decoration('Bei ya mauzo (TZS)'),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _quantityController,
+              keyboardType: TextInputType.number,
+              decoration: _decoration('Idadi/kiasi'),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 44,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _pakiaMauzo,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kPrimary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : Text('Pakia mauzo', style: GoogleFonts.interTight(color: Colors.white)),
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

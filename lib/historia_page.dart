@@ -11,8 +11,7 @@ class HistoriaPage extends StatefulWidget {
 }
 
 class _HistoriaPageState extends State<HistoriaPage> {
-  String? _filter; // null = Zote
-
+  String? _filter;
   late Future<List<ActivityRow>> _future;
 
   static const Map<String, Color> _dotColor = {
@@ -50,10 +49,7 @@ class _HistoriaPageState extends State<HistoriaPage> {
     final today = DateTime(now.year, now.month, now.day);
     final that = DateTime(d.year, d.month, d.day);
     final diff = today.difference(that).inDays;
-    const miezi = [
-      '', 'JAN', 'FEB', 'MAC', 'APR', 'MEI', 'JUN',
-      'JUL', 'AGO', 'SEP', 'OKT', 'NOV', 'DES'
-    ];
+    const miezi = ['', 'JAN', 'FEB', 'MAC', 'APR', 'MEI', 'JUN', 'JUL', 'AGO', 'SEP', 'OKT', 'NOV', 'DES'];
     final tarehe = '${d.day} ${miezi[d.month]} ${d.year}';
     if (diff == 0) return 'LEO ($tarehe)';
     if (diff == 1) return 'JANA ($tarehe)';
@@ -74,15 +70,9 @@ class _HistoriaPageState extends State<HistoriaPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
-        title: Text(
-          'Historia ya Miamala',
-          style: GoogleFonts.inter(
-            color: Colors.black87,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        automaticallyImplyLeading: false,
+        title: Text('Historia ya Miamala',
+            style: GoogleFonts.inter(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
       ),
       body: Column(
         children: [
@@ -112,20 +102,13 @@ class _HistoriaPageState extends State<HistoriaPage> {
                 }
                 final rows = snapshot.data ?? [];
                 if (rows.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Hakuna shughuli bado.',
-                      style: GoogleFonts.inter(color: Colors.grey),
-                    ),
-                  );
+                  return Center(child: Text('Hakuna shughuli bado.', style: GoogleFonts.inter(color: Colors.grey)));
                 }
 
-                // Panga kwa tarehe
                 final Map<String, List<ActivityRow>> grouped = {};
                 for (final r in rows) {
                   final d = DateTime.parse(r.timestamp);
-                  final heading = _dateHeading(d);
-                  grouped.putIfAbsent(heading, () => []).add(r);
+                  grouped.putIfAbsent(_dateHeading(d), () => []).add(r);
                 }
 
                 return ListView(
@@ -134,15 +117,9 @@ class _HistoriaPageState extends State<HistoriaPage> {
                     return [
                       Padding(
                         padding: const EdgeInsets.only(top: 12, bottom: 8),
-                        child: Text(
-                          entry.key,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade600,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                        child: Text(entry.key,
+                            style: GoogleFonts.inter(
+                                fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade600, letterSpacing: 0.5)),
                       ),
                       ...entry.value.map((r) => _activityCard(r)),
                     ];
@@ -164,30 +141,18 @@ class _HistoriaPageState extends State<HistoriaPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: active
-              ? (dot?.withOpacity(0.15) ?? Colors.grey.shade200)
-              : Colors.grey.shade100,
+          color: active ? (dot?.withOpacity(0.15) ?? Colors.grey.shade200) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: active ? (dot ?? Colors.black87) : Colors.transparent,
-            width: 1.5,
-          ),
+          border: Border.all(color: active ? (dot ?? Colors.black87) : Colors.transparent, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (dot != null) ...[
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
-              ),
+              Container(width: 8, height: 8, decoration: BoxDecoration(color: dot, shape: BoxShape.circle)),
               const SizedBox(width: 6),
             ],
-            Text(
-              label,
-              style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
+            Text(label, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -202,48 +167,27 @@ class _HistoriaPageState extends State<HistoriaPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(14)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: _dotColor[r.type],
-                shape: BoxShape.circle,
-              ),
-            ),
+            child: Container(width: 10, height: 10, decoration: BoxDecoration(color: _dotColor[r.type], shape: BoxShape.circle)),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${r.name}$qtyLabel',
-                  style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                Text(
-                  _tsh(r.amount),
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: r.amount >= 0
-                        ? const Color(0xFF0A5C2F)
-                        : const Color(0xFF9B1C1C),
-                  ),
-                ),
+                Text('${r.name}$qtyLabel', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700)),
+                Text(_tsh(r.amount),
+                    style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: r.amount >= 0 ? const Color(0xFF0A5C2F) : const Color(0xFF9B1C1C))),
                 const SizedBox(height: 4),
-                Text(
-                  '${_label[r.type]} • ${_time(d)}',
-                  style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600),
-                ),
+                Text('${_label[r.type]} • ${_time(d)}', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600)),
               ],
             ),
           ),

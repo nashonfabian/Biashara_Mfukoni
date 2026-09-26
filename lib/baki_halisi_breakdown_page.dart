@@ -37,14 +37,8 @@ class _BakiHalisiBreakdownPageState extends State<BakiHalisiBreakdownPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
-        title: Text(
-          'Baki Halisi ya Leo',
-          style: GoogleFonts.inter(
-            color: Colors.black87,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: Text('Baki Halisi ya Leo',
+            style: GoogleFonts.inter(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -64,37 +58,26 @@ class _BakiHalisiBreakdownPageState extends State<BakiHalisiBreakdownPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Baki Halisi ya leo',
-                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade700),
-                    ),
+                    Text('Baki Halisi ya leo', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade700)),
                     const SizedBox(height: 4),
-                    Text(
-                      _tsh(v),
-                      style: GoogleFonts.inter(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w800,
-                        color: positive
-                            ? const Color(0xFF0A5C2F)
-                            : const Color(0xFF9B1C1C),
-                      ),
-                    ),
+                    Text(_tsh(v),
+                        style: GoogleFonts.inter(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            color: positive ? const Color(0xFF0A5C2F) : const Color(0xFF9B1C1C))),
                   ],
                 ),
               );
             },
           ),
           const SizedBox(height: 20),
-
           Text('Mchanganuo', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
           _rowKifedha('Faida ghafi ya leo', _faidaFuture, positive: true),
           _rowKifedha('Matumizi ya leo', _matumiziFuture, positive: false),
           _rowKifedha('Gharama ya kudumu ya siku', _overheadFuture, positive: false),
-
           const SizedBox(height: 24),
-          Text('Matumizi ya leo (orodha)',
-              style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
+          Text('Matumizi ya leo (orodha)', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
           FutureBuilder<List<Map<String, dynamic>>>(
             future: _matumiziListFuture,
@@ -103,8 +86,7 @@ class _BakiHalisiBreakdownPageState extends State<BakiHalisiBreakdownPage> {
               if (rows.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.all(8),
-                  child: Text('Hakuna matumizi yaliyoingizwa leo.',
-                      style: GoogleFonts.inter(color: Colors.grey)),
+                  child: Text('Hakuna matumizi yaliyoingizwa leo.', style: GoogleFonts.inter(color: Colors.grey)),
                 );
               }
               return Column(
@@ -112,24 +94,15 @@ class _BakiHalisiBreakdownPageState extends State<BakiHalisiBreakdownPage> {
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(10)),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          (r['description'] as String?) ?? 'Matumizi',
-                          style: GoogleFonts.inter(fontSize: 14),
+                        Expanded(
+                          child: Text((r['description'] as String?) ?? 'Matumizi', style: GoogleFonts.inter(fontSize: 14)),
                         ),
-                        Text(
-                          '- ${_tsh(r['amount'] as num)}',
-                          style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF9B1C1C)),
-                        ),
+                        Text('- ${_tsh(r['amount'] as num)}',
+                            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF9B1C1C))),
                       ],
                     ),
                   );
@@ -152,7 +125,7 @@ class _BakiHalisiBreakdownPageState extends State<BakiHalisiBreakdownPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade700)),
+              Expanded(child: Text(label, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade700))),
               Text(
                 (positive ? '' : '- ') + _tsh(v),
                 style: GoogleFonts.inter(

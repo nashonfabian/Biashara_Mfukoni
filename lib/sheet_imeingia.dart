@@ -14,7 +14,7 @@ class SheetImeingiaWidget extends StatefulWidget {
 }
 
 class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
-  static const Color kPrimary = Color(0xFF4B39EF);
+  static const Color kPrimary = Color(0xFF2952E3);
 
   final _searchController = TextEditingController();
   final _qtyController = TextEditingController(text: '1');
@@ -46,15 +46,7 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
   void _onSearchChanged(String value) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-        _results = DbHelper.instance.searchProducts(value);
-      });
-    });
-  }
-
-  void _refreshResults() {
-    setState(() {
-      _results = DbHelper.instance.searchProducts(_searchController.text);
+      setState(() => _results = DbHelper.instance.searchProducts(value));
     });
   }
 
@@ -81,15 +73,12 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
       );
       return;
     }
-
     setState(() => _isSaving = true);
-
     await DbHelper.instance.rekodiMauzo(
       productId: _selectedProduct!.id!,
       quantity: _qty,
       sellingPrice: _sellingPrice,
     );
-
     if (mounted) {
       setState(() => _isSaving = false);
       Navigator.pop(context);
@@ -97,38 +86,21 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
   }
 
   Future<void> _fungueBidhaaMpya() async {
-    await showModalBottomSheet(
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      enableDrag: false,
+    await showDialog(
       context: context,
-      builder: (context) {
-        return Padding(
-          padding: MediaQuery.viewInsetsOf(context),
-          child: AddProductPopupWidget(
-            searchbar: _searchController.text,
-          ),
-        );
-      },
+      builder: (context) => AddProductPopupWidget(searchbar: _searchController.text),
     );
-    // Bidhaa mpya iliyoundwa ndani ya popup tayari imerekodi mauzo yake
-    // yenyewe, hivyo tunafunga sheet hii pia (mauzo yamekamilika).
     if (mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.sizeOf(context).width,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-      ),
+      width: double.infinity,
+      constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.85),
       decoration: const BoxDecoration(
         color: Color(0xFF201771),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
       ),
       child: SingleChildScrollView(
         child: Padding(
@@ -136,18 +108,9 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'PESA IMEINGIA',
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.0,
-                ),
-              ),
+              Text('PESA IMEINGIA',
+                  style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
               const SizedBox(height: 14),
-
-              // ===== SEARCH + ADD =====
               Row(
                 children: [
                   Expanded(
@@ -168,7 +131,6 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      style: GoogleFonts.inter(letterSpacing: 0.0),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -180,9 +142,7 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: kPrimary,
                         padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: const Icon(Icons.add, color: Colors.white),
                     ),
@@ -190,8 +150,6 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                 ],
               ),
               const SizedBox(height: 14),
-
-              // ===== CHIPS ZA BIDHAA ZILIZOPO =====
               FutureBuilder<List<ProductRow>>(
                 future: _results,
                 builder: (context, snapshot) {
@@ -199,39 +157,32 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                   if (results.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.all(8),
-                      child: Text(
-                        'Hakuna bidhaa iliyopatikana. Bofya "+" kuongeza mpya.',
-                        style: GoogleFonts.inter(color: Colors.white70, fontSize: 12),
-                      ),
+                      child: Text('Hakuna bidhaa iliyopatikana. Bofya "+" kuongeza mpya.',
+                          style: GoogleFonts.inter(color: Colors.white70, fontSize: 12)),
                     );
                   }
                   return Wrap(
                     spacing: 10,
                     runSpacing: 10,
-                    children: results.map((p) {
-                      final isSelected = _selectedProduct?.id == p.id;
+                    children: results.map((prod) {
+                      final isSelected = _selectedProduct?.id == prod.id;
                       return InkWell(
-                        onTap: () => _selectProduct(p),
+                        onTap: () => _selectProduct(prod),
                         child: Container(
-                          width: 100,
-                          height: 70,
+                          constraints: const BoxConstraints(minWidth: 90, maxWidth: 130),
+                          height: 68,
                           alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
                             color: isSelected ? kPrimary : Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isSelected ? Colors.white : Colors.transparent,
-                              width: 2,
-                            ),
+                            border: Border.all(color: isSelected ? Colors.white : Colors.transparent, width: 2),
                           ),
                           child: Text(
-                            p.name,
+                            prod.name,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
-                              color: isSelected ? Colors.white : Colors.black87,
-                              fontSize: 13,
-                            ),
+                                color: isSelected ? Colors.white : Colors.black87, fontSize: 13),
                           ),
                         ),
                       );
@@ -239,30 +190,18 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                   );
                 },
               ),
-
-              // ===== FOMU YA MAUZO YA HARAKA (bidhaa iliyopo tayari) =====
               if (_selectedProduct != null) ...[
                 const SizedBox(height: 18),
                 Container(
                   padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _selectedProduct!.name,
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
-                      ),
-                      Text(
-                        'Bei ya mtaji: TSh ${_selectedProduct!.lastCostPrice.toStringAsFixed(0)}',
-                        style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade600),
-                      ),
+                      Text(_selectedProduct!.name,
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15)),
+                      Text('Bei ya mtaji: TSh ${_selectedProduct!.lastCostPrice.toStringAsFixed(0)}',
+                          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade600)),
                       const SizedBox(height: 10),
                       Row(
                         children: [
@@ -271,10 +210,7 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                               controller: _qtyController,
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
-                                isDense: true,
-                                labelText: 'Idadi (Qty)',
-                                border: OutlineInputBorder(),
-                              ),
+                                  isDense: true, labelText: 'Idadi (Qty)', border: OutlineInputBorder()),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -283,10 +219,7 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                               controller: _sellingPriceController,
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
-                                isDense: true,
-                                labelText: 'Bei ya Kuuzia (TSh)',
-                                border: OutlineInputBorder(),
-                              ),
+                                  isDense: true, labelText: 'Bei ya Kuuzia', border: OutlineInputBorder()),
                             ),
                           ),
                         ],
@@ -296,19 +229,15 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          color: _faidaPreview >= 0
-                              ? const Color(0xFFEAFAF0)
-                              : const Color(0xFFFDECEC),
+                          color: _faidaPreview >= 0 ? const Color(0xFFEAFAF0) : const Color(0xFFFDECEC),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Faida halisi kwa mauzo haya: TSh ${_faidaPreview.toStringAsFixed(0)}',
+                          'Faida halisi: TSh ${_faidaPreview.toStringAsFixed(0)}',
                           style: GoogleFonts.inter(
                             fontSize: 13,
-                            color: _faidaPreview >= 0
-                                ? const Color(0xFF0A5C2F)
-                                : const Color(0xFF9B1C1C),
+                            color: _faidaPreview >= 0 ? const Color(0xFF0A5C2F) : const Color(0xFF9B1C1C),
                           ),
                         ),
                       ),
@@ -320,23 +249,15 @@ class _SheetImeingiaWidgetState extends State<SheetImeingiaWidget> {
                           onPressed: _isSaving ? null : _thibitishaMauzo,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2FA86A),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
                           child: _isSaving
                               ? const SizedBox(
                                   width: 18,
                                   height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : Text(
-                                  'Pesa Taslimu (Cash Sale)',
-                                  style: GoogleFonts.interTight(color: Colors.white),
-                                ),
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : Text('Pesa Taslimu (Cash Sale)',
+                                  style: GoogleFonts.interTight(color: Colors.white)),
                         ),
                       ),
                     ],
